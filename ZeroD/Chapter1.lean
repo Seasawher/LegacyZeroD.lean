@@ -357,12 +357,25 @@ def X := ⊞[51.0, 55.0; 14.0, 19.0; 0.0, 4.0]
   for row in X do
     IO.println row
 
--- TODO: 行列の「すべての行成分」を取得する方法を調べる
--- 現状，無理そうに思える
+-- TODO: 行列の「すべての行成分」を取得する適切な方法を調べる
+variable {α : Type} [pd : PlainDataType α] {ι : Type} [IndexType.{0,0} ι]
+
+/-- すべての行を取得する関数 -/
+def _root_.SciLean.DataArrayN.rows {m n : Nat} (xs : DataArrayN α (Fin m × Fin n)) : Array (DataArrayN α (Fin n)) := Id.run do
+  let mut array := #[]
+  for i in [0:m] do
+    let i : Fin m := ⟨i, by sorry_proof⟩
+    let row := ⊞ j => xs[i, j]
+    array := array.push row
+  return array
+
+#eval X.rows
+
+#eval show IO Unit from
+  for row in X.rows do
+    IO.println row
 
 -- flatten 関数に相当するものもどこにあるのかわからないので自作する
-
-variable {α : Type} [pd : PlainDataType α] {ι : Type} [IndexType.{0,0} ι]
 
 def _root_.SciLean.DataArrayN.flatten (xs : DataArrayN α ι) {m : Nat} (h : m = IndexType.card ι := by infer_var) : DataArrayN α (Fin m) := by
   rw [h]
