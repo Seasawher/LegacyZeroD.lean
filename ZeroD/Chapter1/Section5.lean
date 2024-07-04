@@ -47,6 +47,7 @@ set_option linter.hashCommand false
 #check DataArrayN
 
 def A := ⊞[1.0, 2.0; 3.0, 4.0]
+def C := ⊞[1.0, 2.0]
 
 #eval A
 
@@ -68,16 +69,21 @@ def B := ⊞[3.0, 0.0; 0.0, 6.0]
 #eval A * B
 
 -- ブロードキャストによるスカラー倍はできない
-#check_failure A * 10
+#check_failure C * A
 
 variable {α : Type} [pd : PlainDataType α] {ι : Type} [IndexType.{0,0} ι]
 
 scoped instance [Mul α] : HMul α (DataArrayN α ι) (DataArrayN α ι) where
-  hMul x xs := ⊞ i => x * xs[i]
+  hMul x xs := xs.mapMono (x * ·)
+
+/-
+{ hMul := fun x xs => xs.mapMono fun x_1 => x * x_1 }
+-/
+#whnf (inferInstance : HMul Float (DataArrayN Float (Fin 2)) (DataArrayN Float (Fin 2)))
 
 -- あれ？なんでできないんだろう?
 -- TODO: 失敗する理由を理解する
-#check_failure 10.0 * A
+#check_failure 10.0 * C
 
 end Chapter154
 
