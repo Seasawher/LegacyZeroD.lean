@@ -5,7 +5,8 @@ package «ZeroD» where
   -- add package configuration options here
   leanOptions := #[
     ⟨`autoImplicit, false⟩,
-    ⟨`relaxedAutoImplicit, false⟩
+    ⟨`relaxedAutoImplicit, false⟩,
+    ⟨`pp.mvars, false⟩
   ]
 
 require scilean from git
