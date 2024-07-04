@@ -4,8 +4,11 @@ open Lake DSL
 package «ZeroD» where
   -- add package configuration options here
   leanOptions := #[
+    -- autoimplicit is evil 👾
     ⟨`autoImplicit, false⟩,
     ⟨`relaxedAutoImplicit, false⟩,
+
+    -- display metavariables as `?_`
     ⟨`pp.mvars, false⟩
   ]
 
