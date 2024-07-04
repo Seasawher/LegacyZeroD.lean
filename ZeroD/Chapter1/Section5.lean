@@ -82,8 +82,11 @@ scoped instance [Mul α] : HMul α (DataArrayN α ι) (DataArrayN α ι) where
 #whnf (inferInstance : HMul Float (DataArrayN Float (Fin 2)) (DataArrayN Float (Fin 2)))
 
 -- あれ？なんでできないんだろう?
--- TODO: 失敗する理由を理解する
+-- 失敗する理由はよくわからない
 #check_failure 10.0 * C
+
+-- これでスカラー乗算ができる
+#eval 10.0 • A
 
 end Chapter154
 
@@ -166,9 +169,14 @@ def _root_.SciLean.DataArrayN.flatten (xs : DataArrayN α ι) {m : Nat} (h : m =
 
 -- DataArrayN Float (Fin 6) という型になってほしいのにならない
 -- flatten 失格である
--- TODO: flatten をきちんと実装する
 
 /-- info: X.flatten ⋯ : DataArrayN Float (Fin (IndexType.card (Fin 3) * IndexType.card (Fin 2))) -/
 #guard_msgs in #check X.flatten
+
+-- simp 補題を追加する
+@[simp] theorem IndexType.card_fin (n : Nat) : IndexType.card (Fin n) = n := by rfl
+
+-- ちゃんと shape が Fin 6 になった！
+#check X.flatten
 
 end Chapter156
