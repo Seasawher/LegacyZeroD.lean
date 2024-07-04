@@ -281,8 +281,16 @@ def A := ⊞[1.0, 2.0; 3.0, 4.0]
 
 #eval A
 
--- shape 関数の実装は見つからず，自前で作るのも難しかったのでいったん断念
--- これは TODO として残しておく
+variable {α : Type} [pd : PlainDataType α] {ι : Type} [IndexType.{0,0} ι]
+
+def _root_.SciLean.DataArrayN.shape (_xs : DataArrayN α ι) := ι
+
+-- shape を出力するコマンドを作ってみる
+-- そんなに需要はないかも
+macro "#shape" F:term : command => `(#reduce SciLean.DataArrayN.shape $F)
+
+#shape A
+
 def B := ⊞[3.0, 0.0; 0.0, 6.0]
 
 #eval A + B
@@ -363,8 +371,8 @@ variable {α : Type} [pd : PlainDataType α] {ι : Type} [IndexType.{0,0} ι]
 /-- すべての行を取得する関数 -/
 def _root_.SciLean.DataArrayN.rows {m n : Nat} (xs : DataArrayN α (Fin m × Fin n)) : Array (DataArrayN α (Fin n)) := Id.run do
   let mut array := #[]
-  for i in [0:m] do
-    let i : Fin m := ⟨i, by sorry_proof⟩
+  for h : i in [0:m] do
+    let i : Fin m := ⟨i, h.right⟩
     let row := ⊞ j => xs[i, j]
     array := array.push row
   return array
