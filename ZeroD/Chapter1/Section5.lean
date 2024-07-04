@@ -77,7 +77,7 @@ scoped instance [Mul α] : HMul α (DataArrayN α ι) (DataArrayN α ι) where
 
 -- あれ？なんでできないんだろう?
 -- TODO: 失敗する理由を理解する
-#check_failure 10 * A
+#check_failure 10.0 * A
 
 end Chapter154
 
