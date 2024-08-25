@@ -14,14 +14,17 @@ import Lean
 #guard 7 / 5 = 1
 
 -- Float として計算しないと値は Float にならない
+-- Lean の Float は Python の float と同じ（どっちも倍精度）
 #eval (7 / 5 : Float)
 
 -- べき乗
+-- Python では `**` だが，Lean では `^` で表す
 #guard 3 ^ 2 = 9
 
 
 /- ### 1.3.2 データ型
-省略．
+Lean では型を調べるのは関数を使わなくていいので、`type()` はない
+hover するか、`#check` を使う
 -/
 
 
@@ -46,14 +49,13 @@ def a := #[1, 2, 3, 4, 5]
 
 #eval a[4]
 
--- 値の代入（っぽいもの．実際には代入していない）
+-- 値の代入（Lean では実際には破壊的変更はしていない）
 #eval a.set! 4 99
 
 -- Python と似たような記法が使えるが，
 -- 以下のように表示されてしまう.
 -- これは嬉しくない
-/-- info: #[1, 2].toSubarray -/
-#guard_msgs in #eval a[0:2]
+#eval a[0:2]
 
 -- Subarray というのがある！
 #check Subarray
@@ -87,6 +89,17 @@ def a := #[1, 2, 3, 4, 5]
 
 #eval (a[:a.size-2] : Array Nat)
 
+-- Lean で配列から、subarray を取ってくるときに、
+-- Array.toSubarray が呼ばれている。しかし、この関数の定義域が Nat になってるので、
+-- Int で範囲アクセスできない。
+
+-- julia 式のを定義するのもちょっと難しい？
+--
+-- syntax (name := rangeAccess) ident "[" ":" "end" term "]" : term
+-- macro_rules
+--   | `($a[ : end $st]) => `(a[: a.size $st])
+
+
 end Chapter134
 
 
@@ -105,6 +118,9 @@ def me := HashMap.ofList [("height", 180)]
 -- 当然返り値が Option に包まれている．
 #guard me["height"] = some 180
 
+-- ビックリマークをつけても何も起こらない（ふしぎ）
+#eval me["height"]!
+
 -- Option に包まれた値を取り出す関数
 -- none だった場合は Inhabited.default を使う
 #check Option.get!
@@ -116,7 +132,16 @@ def me := HashMap.ofList [("height", 180)]
 def me' := me.insert "weight" 70
 
 -- 普通に #eval に渡すことはできない．
-#guard_msgs (drop error) in #eval me'
+/--
+error: expression
+  me'
+has type
+  HashMap String Nat
+but instance
+  MetaEval (HashMap String Nat)
+failed to be synthesized, this instance instructs Lean on how to display the resulting value, recall that any type implementing the `Repr` class also implements the `Lean.MetaEval` class
+-/
+#guard_msgs (error) in #eval me'
 
 -- toList をかませば表示できる
 -- ほかの方法もありそう
@@ -140,17 +165,24 @@ def sleepy := false
 -- これも否定
 #guard ! hungry = false
 
+-- このあたりはPythonと同じ
+#check and
+#check or
+
 -- 論理積
 -- ∧ はProp用で，&&はBool用
 #eval hungry ∧ sleepy
 #eval hungry && sleepy
+
+-- 中値記法ではない
+#check_failure hungry and sleepy
+#check_failure hungry or sleepy
 
 -- 論理和
 #eval hungry ∨ sleepy
 #eval hungry || sleepy
 
 end Chapter136
-
 
 /- ### 1.3.7 if 文 -/
 namespace Chapter137
@@ -178,6 +210,7 @@ end Chapter137
 namespace Chapter138
 
 -- Lean にもfor 文はあって，do構文の一部として提供されています
+-- Python の構文とよく似ています
 
 def main : IO Unit :=
   for i in [1:4] do
