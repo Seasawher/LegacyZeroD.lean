@@ -16,7 +16,7 @@ Lean には Python のクラスに相当するものはない.
 近いもので近似することはできる．
 
 ```bash
-lean --run ZeroD/Hungry.lean
+lean --run ZeroD/Man.lean
 ```
 
 see: Man.lean

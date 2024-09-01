@@ -1,5 +1,8 @@
 import SciLean.Data.DataArray
 import SciLean.Tactic.InferVar
+import SciLean.Util.DefOptimize
+import SciLean.Data.IndexType
+import SciLean.Tactic.OptimizeIndexAccess
 
 /- ### 1.5.6 要素へのアクセス -/
 namespace Chapter156
@@ -64,4 +67,34 @@ def _root_.SciLean.DataArrayN.flatten (xs : DataArrayN α ι) {m : Nat} (h : m =
 -- ちゃんと shape が Fin 6 になった！
 #check X.flatten
 
+-- インデックスの0番目と2番目と4番目を取得したいが
+-- こういう書き方はできないようだ
+#check_failure X[#[0, 2, 4]]
+
+#check GetElem
+
+-- instance : GetElem (DataArrayN α ι) (Array Nat) (Array α) (fun xs arr => arr.all fun i => i < IndexType.card ι) where
+--   getElem xs arr h := Id.run do
+--     let mut ys := #[]
+--     -- for i in arr do
+--     --   have : i < IndexType.card ι := by
+--     --     exact? using h
+--     --   let i : Fin (IndexType.card ι) := ⟨i, ?lem⟩
+--     --   ys := ys.push (xs[⟨i, h i⟩])
+--     -- arr.map (fun i => xs[i])
+--     sorry
+
+
 end Chapter156
+
+open SciLean IndexType
+
+def matVecMul {n m} (A : Float^[n,m]) (x : Float^[m]) := ⊞ i => ∑ j, A[i,j] * x[j]
+
+def_optimize matVecMul by
+  simp only [GetElem.getElem, LeanColls.GetElem'.get, DataArrayN.get, IndexType.toFin, id,
+             Fin.pair, IndexType.fromFin, Fin.cast, IndexType.card]
+
+def matDot {n m} (A B : Float^[n,m]) := ∑ (ij : Fin n × Fin m), A[ij] * B[ij]
+
+def_optimize matDot by optimize_index_access
